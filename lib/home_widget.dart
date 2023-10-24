@@ -122,117 +122,117 @@ class HomeWidget {
   /// This method renders the widget to an image (png) file with the provided filename.
   /// The png file is saved to the App Group container and the full path is returned as a string.
   /// The filename is saved to UserDefaults using the provided key.
-  static Future renderFlutterWidget(
-    Widget widget, {
-    required String key,
-    Size logicalSize = const Size(200, 200),
-    double pixelRatio = 1,
-  }) async {
-    /// finding the widget in the current context by the key.
-    final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
-
-    /// create a new pipeline owner
-    final PipelineOwner pipelineOwner = PipelineOwner();
-
-    /// create a new build owner
-    final BuildOwner buildOwner = BuildOwner(focusManager: FocusManager());
-
-    try {
-      final RenderView renderView = RenderView(
-        view: ui.PlatformDispatcher.instance.implicitView!,
-        child: RenderPositionedBox(
-          alignment: Alignment.center,
-          child: repaintBoundary,
-        ),
-        configuration: ViewConfiguration(
-          size: logicalSize,
-          devicePixelRatio: 1.0,
-        ),
-      );
-
-      /// setting the rootNode to the renderview of the widget
-      pipelineOwner.rootNode = renderView;
-
-      /// setting the renderView to prepareInitialFrame
-      renderView.prepareInitialFrame();
-
-      /// setting the rootElement with the widget that has to be captured
-      final RenderObjectToWidgetElement<RenderBox> rootElement =
-          RenderObjectToWidgetAdapter<RenderBox>(
-        container: repaintBoundary,
-        child: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Column(
-            // image is center aligned
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              widget,
-            ],
-          ),
-        ),
-      ).attachToRenderTree(buildOwner);
-
-      ///adding the rootElement to the buildScope
-      buildOwner.buildScope(rootElement);
-
-      ///adding the rootElement to the buildScope
-      buildOwner.buildScope(rootElement);
-
-      /// finialize the buildOwner
-      buildOwner.finalizeTree();
-
-      ///Flush Layout
-      pipelineOwner.flushLayout();
-
-      /// Flush Compositing Bits
-      pipelineOwner.flushCompositingBits();
-
-      /// Flush paint
-      pipelineOwner.flushPaint();
-
-      final ui.Image image =
-          await repaintBoundary.toImage(pixelRatio: pixelRatio);
-
-      /// The raw image is converted to byte data.
-      final ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-
-      try {
-        late final String? directory;
-        try {
-          // coverage:ignore-start
-          if (Platform.environment.containsKey('FLUTTER_TEST')) {
-            throw UnsupportedError(
-              'Tests should always use default Path provider for easier mocking',
-            );
-          }
-          final PathProviderFoundation provider = PathProviderFoundation();
-          directory = await provider.getContainerPath(
-            appGroupIdentifier: HomeWidget.groupId!,
-          );
-          // coverage:ignore-end
-        } on UnsupportedError catch (_) {
-          directory = (await getApplicationSupportDirectory()).path;
-        }
-        final String path = '$directory/home_widget/$key.png';
-        final File file = File(path);
-        if (!await file.exists()) {
-          await file.create(recursive: true);
-        }
-        await file.writeAsBytes(byteData!.buffer.asUint8List());
-
-        // Save the filename to UserDefaults if a key was provided
-        _channel.invokeMethod<bool>('saveWidgetData', {
-          'id': key,
-          'data': path,
-        });
-
-        return path;
-      } catch (e) {
-        throw Exception('Failed to save screenshot to app group container: $e');
-      }
-    } catch (e) {
-      throw Exception('Failed to render the widget: $e');
-    }
-  }
+  // static Future renderFlutterWidget( // нужна новая версия для этого
+  //   Widget widget, {
+  //   required String key,
+  //   Size logicalSize = const Size(200, 200),
+  //   double pixelRatio = 1,
+  // }) async {
+  //   /// finding the widget in the current context by the key.
+  //   final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
+  //
+  //   /// create a new pipeline owner
+  //   final PipelineOwner pipelineOwner = PipelineOwner();
+  //
+  //   /// create a new build owner
+  //   final BuildOwner buildOwner = BuildOwner(focusManager: FocusManager());
+  //
+  //   try {
+  //     final RenderView renderView = RenderView(
+  //       view: ui.PlatformDispatcher.instance.implicitView!,
+  //       child: RenderPositionedBox(
+  //         alignment: Alignment.center,
+  //         child: repaintBoundary,
+  //       ),
+  //       configuration: ViewConfiguration(
+  //         size: logicalSize,
+  //         devicePixelRatio: 1.0,
+  //       ),
+  //     );
+  //
+  //     /// setting the rootNode to the renderview of the widget
+  //     pipelineOwner.rootNode = renderView;
+  //
+  //     /// setting the renderView to prepareInitialFrame
+  //     renderView.prepareInitialFrame();
+  //
+  //     /// setting the rootElement with the widget that has to be captured
+  //     final RenderObjectToWidgetElement<RenderBox> rootElement =
+  //         RenderObjectToWidgetAdapter<RenderBox>(
+  //       container: repaintBoundary,
+  //       child: Directionality(
+  //         textDirection: TextDirection.ltr,
+  //         child: Column(
+  //           // image is center aligned
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             widget,
+  //           ],
+  //         ),
+  //       ),
+  //     ).attachToRenderTree(buildOwner);
+  //
+  //     ///adding the rootElement to the buildScope
+  //     buildOwner.buildScope(rootElement);
+  //
+  //     ///adding the rootElement to the buildScope
+  //     buildOwner.buildScope(rootElement);
+  //
+  //     /// finialize the buildOwner
+  //     buildOwner.finalizeTree();
+  //
+  //     ///Flush Layout
+  //     pipelineOwner.flushLayout();
+  //
+  //     /// Flush Compositing Bits
+  //     pipelineOwner.flushCompositingBits();
+  //
+  //     /// Flush paint
+  //     pipelineOwner.flushPaint();
+  //
+  //     final ui.Image image =
+  //         await repaintBoundary.toImage(pixelRatio: pixelRatio);
+  //
+  //     /// The raw image is converted to byte data.
+  //     final ByteData? byteData =
+  //         await image.toByteData(format: ui.ImageByteFormat.png);
+  //
+  //     try {
+  //       late final String? directory;
+  //       try {
+  //         // coverage:ignore-start
+  //         if (Platform.environment.containsKey('FLUTTER_TEST')) {
+  //           throw UnsupportedError(
+  //             'Tests should always use default Path provider for easier mocking',
+  //           );
+  //         }
+  //         final PathProviderFoundation provider = PathProviderFoundation();
+  //         directory = await provider.getContainerPath(
+  //           appGroupIdentifier: HomeWidget.groupId!,
+  //         );
+  //         // coverage:ignore-end
+  //       } on UnsupportedError catch (_) {
+  //         directory = (await getApplicationSupportDirectory()).path;
+  //       }
+  //       final String path = '$directory/home_widget/$key.png';
+  //       final File file = File(path);
+  //       if (!await file.exists()) {
+  //         await file.create(recursive: true);
+  //       }
+  //       await file.writeAsBytes(byteData!.buffer.asUint8List());
+  //
+  //       // Save the filename to UserDefaults if a key was provided
+  //       _channel.invokeMethod<bool>('saveWidgetData', {
+  //         'id': key,
+  //         'data': path,
+  //       });
+  //
+  //       return path;
+  //     } catch (e) {
+  //       throw Exception('Failed to save screenshot to app group container: $e');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Failed to render the widget: $e');
+  //   }
+  // }
 }

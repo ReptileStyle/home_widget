@@ -15,7 +15,7 @@ public struct HomeWidgetBackgroundWorker {
   static let dispatcherKey: String = "home_widget.internal.background.dispatcher"
   static let callbackKey: String = "home_widget.internal.background.callback"
 
-  static var isSetupCompleted: Bool = false
+  static public var isSetupCompleted: Bool = false
   static var engine: FlutterEngine?
   static var channel: FlutterMethodChannel?
   static var queue: [(URL?, String)] = []

@@ -56,7 +56,7 @@ public struct HomeWidgetBackgroundWorker {
 
     started = engine?.run(
       withEntrypoint: flutterCallbackInfo?.callbackName,
-      libraryURI: flutterCallbackInfo?.callbackLibraryPath)
+      libraryURI: flutterCallbackInfo?.callbackLibraryPath) == true
     if registerPlugins != nil {
       registerPlugins?(engine!)
     } else {
@@ -88,7 +88,11 @@ public struct HomeWidgetBackgroundWorker {
 
     for i in 1...10 {
         if(!started){
-            try await Task.sleep(nanoseconds: 50000000)
+            do {
+                try await Task.sleep(nanoseconds: 50000000)
+            } catch {
+
+            }
         } else {
             break
         }

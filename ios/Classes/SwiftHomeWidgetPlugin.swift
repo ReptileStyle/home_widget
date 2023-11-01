@@ -33,6 +33,10 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
     registrar.addApplicationDelegate(instance)
   }
 
+  public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
+    eventSink = nil
+  }
+
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     if call.method == "setAppGroupId" {
       guard let args = call.arguments else {

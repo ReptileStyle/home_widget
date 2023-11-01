@@ -19,6 +19,7 @@ public struct HomeWidgetBackgroundWorker {
   static var engine: FlutterEngine?
   static var channel: FlutterMethodChannel?
   static var queue: [(URL?, String)] = []
+  static var started = false
 
   private static var registerPlugins: FlutterPluginRegistrantCallback?
 
@@ -53,7 +54,7 @@ public struct HomeWidgetBackgroundWorker {
     let callbackName = flutterCallbackInfo?.callbackName
     let callbackLibrary = flutterCallbackInfo?.callbackLibraryPath
 
-    let started = engine?.run(
+    started = engine?.run(
       withEntrypoint: flutterCallbackInfo?.callbackName,
       libraryURI: flutterCallbackInfo?.callbackLibraryPath)
     if registerPlugins != nil {
@@ -85,11 +86,20 @@ public struct HomeWidgetBackgroundWorker {
     let preferences = UserDefaults.init(suiteName: appGroup)
     let callback = preferences?.object(forKey: callbackKey) as! Int64
 
-    channel?.invokeMethod(
-      "",
-      arguments: [
-        callback,
-        url?.absoluteString,
-      ])
+    for i in 1...10 {
+        if(!started){
+            try await Task.sleep(nanoseconds: 50000000)
+        } else {
+            break
+        }
+    }
+    if (started) {
+        channel?.invokeMethod(
+          "",
+          arguments: [
+            callback,
+            url?.absoluteString,
+          ])
+    }
   }
 }

@@ -15,7 +15,7 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
     }
   }
 
-  private var eventSink: FlutterEventSink?
+  private static var eventSink: FlutterEventSink?
 
   private let notInitializedError = FlutterError(
     code: "-7", message: "AppGroupId not set. Call setAppGroupId first", details: nil)

@@ -7,7 +7,7 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
   private static var groupId: String?
 
   private var initialUrl: URL?
-  private var latestUrl: URL? {
+  public static var latestUrl: URL? {
     didSet {
       if latestUrl != nil {
         eventSink?.self(latestUrl?.absoluteString)
@@ -194,7 +194,7 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
     return false
   }
 
-  private func isWidgetUrl(url: URL) -> Bool {
+  public static func isWidgetUrl(url: URL) -> Bool {
     let components = URLComponents.init(url: url, resolvingAgainstBaseURL: false)
     return components?.queryItems?.contains(where: { (item) in item.name == "homeWidget" }) ?? false
   }

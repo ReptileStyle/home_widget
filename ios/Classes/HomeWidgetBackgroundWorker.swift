@@ -98,6 +98,9 @@ public struct HomeWidgetBackgroundWorker {
         }
     }
     if (started) {
+        if (SwiftHomeWidgetPlugin.isWidgetUrl(url)){
+            SwiftHomeWidgetPlugin.latestUrl = url;
+        }
         channel?.invokeMethod(
           "",
           arguments: [

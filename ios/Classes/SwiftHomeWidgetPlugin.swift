@@ -34,7 +34,7 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-    eventSink = nil
+      SwiftHomeWidgetPlugin.eventSink = nil
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -162,12 +162,12 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink)
     -> FlutterError?
   {
-    eventSink = events
+      SwiftHomeWidgetPlugin.eventSink = events
     return nil
   }
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    eventSink = nil
+      SwiftHomeWidgetPlugin.eventSink = nil
     return nil
   }
 
@@ -176,9 +176,9 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
     didFinishLaunchingWithOptions launchOptions: [AnyHashable: Any] = [:]
   ) -> Bool {
     let launchUrl = (launchOptions[UIApplication.LaunchOptionsKey.url] as? NSURL)?.absoluteURL
-    if launchUrl != nil && isWidgetUrl(url: launchUrl!) {
+      if launchUrl != nil && SwiftHomeWidgetPlugin.isWidgetUrl(url: launchUrl!) {
       initialUrl = launchUrl?.absoluteURL
-      latestUrl = initialUrl
+        SwiftHomeWidgetPlugin.latestUrl = initialUrl
     }
     return true
   }
@@ -187,8 +187,8 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
     _ application: UIApplication, open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    if isWidgetUrl(url: url) {
-      latestUrl = url
+      if SwiftHomeWidgetPlugin.isWidgetUrl(url: url) {
+          SwiftHomeWidgetPlugin.latestUrl = url
       return true
     }
     return false

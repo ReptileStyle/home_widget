@@ -98,7 +98,7 @@ public struct HomeWidgetBackgroundWorker {
         }
     }
     if (started) {
-        if (url != nil && SwiftHomeWidgetPlugin.isWidgetUrl(url!)){
+        if (url != nil && SwiftHomeWidgetPlugin.isWidgetUrl(url: url!)){
             SwiftHomeWidgetPlugin.latestUrl = url!;
         }
         channel?.invokeMethod(

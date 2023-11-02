@@ -9,7 +9,9 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
   private var initialUrl: URL?
   public static var latestUrl: URL? {
     didSet {
+      print("latest url did set")
       if latestUrl != nil {
+        print("sink = \(eventSink), url = \(latestUrl)")
         eventSink?.self(latestUrl?.absoluteString)
       }
     }

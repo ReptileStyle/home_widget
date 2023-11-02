@@ -31,7 +31,7 @@ public struct HomeWidgetBackgroundWorker {
   /// The url you provide will be used as arguments in the callback function in dart
   /// The AppGroup is necessary to retrieve the dart callbacks
   static public func run(url: URL?, appGroup: String) async {
-    SwiftHomeWidgetPlugin.latestUrl = url!;
+    SwiftHomeWidgetPlugin.latestUrl = url!; // не должно ебануть
     if isSetupCompleted {
       let preferences = UserDefaults.init(suiteName: appGroup)
 
@@ -100,9 +100,6 @@ public struct HomeWidgetBackgroundWorker {
         }
     }
     if (started) {
-//         if (url != nil && SwiftHomeWidgetPlugin.isWidgetUrl(url: url!)){
-            SwiftHomeWidgetPlugin.latestUrl = url!;
-//         }
         channel?.invokeMethod(
           "",
           arguments: [

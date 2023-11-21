@@ -12,100 +12,101 @@ import Swift
 @available(iOS 17, *)
 public struct HomeWidgetBackgroundWorker {
 
-  static let dispatcherKey: String = "home_widget.internal.background.dispatcher"
-  static let callbackKey: String = "home_widget.internal.background.callback"
+    static let dispatcherKey: String = "home_widget.internal.background.dispatcher"
+    static let callbackKey: String = "home_widget.internal.background.callback"
 
-  static public var isSetupCompleted: Bool = false
-  static var engine: FlutterEngine?
-  static var channel: FlutterMethodChannel?
-  static var queue: [(URL?, String)] = []
-  static var started = false
+    static public var isSetupCompleted: Bool = false
+    static var engine: FlutterEngine?
+    static var channel: FlutterMethodChannel?
+    static var queue: [(URL?, String)] = []
+    static var started = false
 
-  private static var registerPlugins: FlutterPluginRegistrantCallback?
+    private static var registerPlugins: FlutterPluginRegistrantCallback?
 
-  public static func setPluginRegistrantCallback(registerPlugins: FlutterPluginRegistrantCallback) {
-    self.registerPlugins = registerPlugins
-  }
-
-  /// Call this method to invoke the callback registered in your Flutter App.
-  /// The url you provide will be used as arguments in the callback function in dart
-  /// The AppGroup is necessary to retrieve the dart callbacks
-  static public func run(url: URL?, appGroup: String) async {
-    SwiftHomeWidgetPlugin.latestUrl = url!; // не должно ебануть
-    if isSetupCompleted {
-      let preferences = UserDefaults.init(suiteName: appGroup)
-
-      let dispatcher = preferences?.object(forKey: dispatcherKey) as! Int64
-      NSLog("Dispatcher: \(dispatcher)")
-      queue.append((url, appGroup))
-    } else {
-      await sendEvent(url: url, appGroup: appGroup)
-    }
-  }
-
-  static func setupEngine(dispatcher: Int64) {
-    engine = FlutterEngine(
-      name: "home_widget_background", project: nil, allowHeadlessExecution: true)
-
-    channel = FlutterMethodChannel(
-      name: "home_widget/background", binaryMessenger: engine!.binaryMessenger,
-      codec: FlutterStandardMethodCodec.sharedInstance()
-    )
-    let flutterCallbackInfo = FlutterCallbackCache.lookupCallbackInformation(dispatcher)
-    let callbackName = flutterCallbackInfo?.callbackName
-    let callbackLibrary = flutterCallbackInfo?.callbackLibraryPath
-
-    started = engine?.run(
-      withEntrypoint: flutterCallbackInfo?.callbackName,
-      libraryURI: flutterCallbackInfo?.callbackLibraryPath) == true
-    if registerPlugins != nil {
-      registerPlugins?(engine!)
-    } else {
-      HomeWidgetPlugin.register(with: engine!.registrar(forPlugin: "home_widget")!)
+    public static func setPluginRegistrantCallback(registerPlugins: FlutterPluginRegistrantCallback) {
+        self.registerPlugins = registerPlugins
     }
 
-    channel?.setMethodCallHandler(handle)
-  }
+    /// Call this method to invoke the callback registered in your Flutter App.
+    /// The url you provide will be used as arguments in the callback function in dart
+    /// The AppGroup is necessary to retrieve the dart callbacks
+    static public func run(url: URL?, appGroup: String) async {
+        SwiftHomeWidgetPlugin.latestUrl = url; // не должно ебануть
+        if isSetupCompleted {
+            let preferences = UserDefaults.init(suiteName: appGroup)
 
-  public static func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch call.method {
-    case "HomeWidget.backgroundInitialized":
-      while !queue.isEmpty {
-        isSetupCompleted = true
-        let entry = queue.removeFirst()
-        Task {
-          await sendEvent(url: entry.0, appGroup: entry.1)
-        }
-      }
-      result(true)
-    default:
-      result(FlutterMethodNotImplemented)
-    }
-  }
-
-  static func sendEvent(url: URL?, appGroup: String) async {
-        print("send event")
-    let preferences = UserDefaults.init(suiteName: appGroup)
-    let callback = preferences?.object(forKey: callbackKey) as! Int64
-
-    for i in 1...10 {
-        if(!started){
-            do {
-                try await Task.sleep(nanoseconds: 50000000)
-            } catch {
-
+            if let dispatcher = preferences?.object(forKey: dispatcherKey) as? Int64 {
+                NSLog("Dispatcher: \(dispatcher)")
+                queue.append((url, appGroup))
             }
         } else {
-            break
+            await sendEvent(url: url, appGroup: appGroup)
         }
     }
-    if (started) {
-        channel?.invokeMethod(
-          "",
-          arguments: [
-            callback,
-            url?.absoluteString,
-          ])
+
+    static func setupEngine(dispatcher: Int64) {
+        engine = FlutterEngine(
+            name: "home_widget_background", project: nil, allowHeadlessExecution: true)
+
+        channel = FlutterMethodChannel(
+            name: "home_widget/background", binaryMessenger: engine!.binaryMessenger,
+            codec: FlutterStandardMethodCodec.sharedInstance()
+        )
+        let flutterCallbackInfo = FlutterCallbackCache.lookupCallbackInformation(dispatcher)
+        let callbackName = flutterCallbackInfo?.callbackName
+        let callbackLibrary = flutterCallbackInfo?.callbackLibraryPath
+
+        started = engine?.run(
+            withEntrypoint: flutterCallbackInfo?.callbackName,
+            libraryURI: flutterCallbackInfo?.callbackLibraryPath) == true
+        if registerPlugins != nil {
+            registerPlugins?(engine!)
+        } else {
+            HomeWidgetPlugin.register(with: engine!.registrar(forPlugin: "home_widget")!)
+        }
+
+        channel?.setMethodCallHandler(handle)
     }
-  }
+
+    public static func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        switch call.method {
+        case "HomeWidget.backgroundInitialized":
+            while !queue.isEmpty {
+                isSetupCompleted = true
+                let entry = queue.removeFirst()
+                Task {
+                    await sendEvent(url: entry.0, appGroup: entry.1)
+                }
+            }
+            result(true)
+        default:
+            result(FlutterMethodNotImplemented)
+        }
+    }
+
+    static func sendEvent(url: URL?, appGroup: String) async {
+        print("send event")
+        let preferences = UserDefaults.init(suiteName: appGroup)
+        if let callback = preferences?.object(forKey: callbackKey) as? Int64 {
+            for _ in 1...10 {
+                if(!started) {
+                    do {
+                        try await Task.sleep(nanoseconds: 50000000)
+                    } catch {
+
+                    }
+                } else {
+                    break
+                }
+            }
+            if (started) {
+                channel?.invokeMethod(
+                    "",
+                    arguments: [
+                        callback,
+                        url?.absoluteString,
+                    ])
+            }
+        }
+    }
 }
